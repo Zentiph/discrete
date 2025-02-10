@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderedGroup implements Ordered {
+public class OrderedGroup {
     private ArrayList<Object> items;
     private ArrayList<Class<?>> types;
 
@@ -42,27 +42,22 @@ public class OrderedGroup implements Ordered {
         }
     }
 
-    @Override
     public int size() {
         return this.items.size();
     }
 
-    @Override
     public Object get(int index) throws IndexOutOfBoundsException {
         return this.items.get(index);
     }
 
-    @Override
     public Class<?> getClass(int index) throws IndexOutOfBoundsException {
         return this.types.get(index);
     }
 
-    @Override
     public List<Object> getAll() {
         return this.items;
     }
 
-    @Override
     public List<Class<?>> getAllClasses() {
         return this.types;
     }

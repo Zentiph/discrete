@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author Gavin Borne
  */
-public interface SetBase<E> {
+public interface SetBase<E> extends Iterable<E> {
     /**
      * Add an element to this set.
      * Sets cannot contain duplicate items.

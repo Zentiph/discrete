@@ -6,13 +6,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+// TODO
+// After making tests see if this works the same as
+// public class Set extends TypedSet<Object>
+
 /**
  * Default set class, which acts like a {@link TypedSet} but
  * with the generic type set to {@code Object} in order to hold any type.
  *
  * @author Gavin Borne
  */
-public class Set implements SetBase<Object>, Iterable<Object> {
+public class Set implements SetBase<Object> {
     private ArrayList<Object> elements;
 
     /**
@@ -68,7 +72,7 @@ public class Set implements SetBase<Object>, Iterable<Object> {
     public boolean addAll(List<Object> elements) {
         boolean anyAdded = false;
         for (Object element : elements) {
-            if (add(element)) {
+            if (this.elements.add(element)) {
                 anyAdded = true;
             }
         }
@@ -129,13 +133,14 @@ public class Set implements SetBase<Object>, Iterable<Object> {
      */
     @Override
     public boolean isSubsetOf(SetBase<Object> other) {
-        boolean allMembersOf = true;
         for (Object element : this.elements) {
+            // If an element in this set is not in the superset,
+            // then this is not a subset.
             if (!other.contains(element)) {
-                allMembersOf = false;
+                return false;
             }
         }
-        return allMembersOf;
+        return true;
     }
 
     /**
@@ -248,8 +253,21 @@ public class Set implements SetBase<Object>, Iterable<Object> {
     public SetBase<Object> intersection(SetBase<Object> other) {
         SetBase<Object> newSet = new Set();
 
-        for (Object element : this.elements) {
-            if (other.contains(element)) {
+        // Prevent wasted time looping over bigger set
+        // when intersection can be at most as big as the
+        // smaller set
+        SetBase<Object> smallerSet;
+        SetBase<Object> biggerSet;
+        if (cardinality() <= other.cardinality()) {
+            smallerSet = this;
+            biggerSet = other;
+        } else {
+            smallerSet = other;
+            biggerSet = this;
+        }
+
+        for (Object element : smallerSet.getElements()) {
+            if (biggerSet.contains(element)) {
                 newSet.add(element);
             }
         }
@@ -266,7 +284,7 @@ public class Set implements SetBase<Object>, Iterable<Object> {
 
         for (SetBase<Object> set : others) {
             newSet = newSet.intersection(set);
-            // The set is empty, its intersection will now always be empty.
+            // If the set is empty, its intersection will now always be empty.
             if (newSet.cardinality() == 0) {
                 // So return here to not waste computation time.
                 return newSet;
@@ -318,8 +336,8 @@ public class Set implements SetBase<Object>, Iterable<Object> {
         SetBase<OrderedGroup> newSet = new TypedSet<>();
 
         for (Object element : this.elements) {
-            for (Object innerElement : other.getElements()) {
-                newSet.add(new OrderedGroup(element, innerElement));
+            for (Object otherElement : other.getElements()) {
+                newSet.add(new OrderedGroup(element, otherElement));
             }
         }
 
@@ -437,7 +455,13 @@ public class Set implements SetBase<Object>, Iterable<Object> {
     }
 
     public BigInteger bellNumber() {
-        return BellNumbers.bellNumber(this.elements.size());
+        int size = cardinality();
+
+        // Prioritize accuracy
+        if (size <= 100) {
+            return BellNumbers.bellNumber(size);
+        }
+        return BellNumbers.bellNumberRecursive(size);
     }
 
     @Override

@@ -3,9 +3,10 @@ package sets;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A set that can be typed so that it only contains a specific type.
@@ -16,14 +17,17 @@ import java.util.List;
  *
  * @author Gavin Borne
  */
-public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
-    private List<E> elements;
+public class TypedDiscreteSet<E>
+    implements DiscreteSetI<E>, Cloneable
+{
+    private Set<E> elements;
+    // private List<E> elements;
 
     /**
      * Create a typed set starting with no elements.
      */
     public TypedDiscreteSet() {
-        this.elements = new LinkedList<>();
+        this.elements = new HashSet<>();
     }
 
     /**
@@ -31,8 +35,8 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
      *
      * @param elements - Elements to initialize the set with
      */
-    public TypedDiscreteSet(List<E> elements) {
-        this.elements = new LinkedList<>(elements);
+    public TypedDiscreteSet(Collection<E> elements) {
+        this.elements = new HashSet<>(elements);
     }
 
     /**
@@ -41,7 +45,7 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
      * @param set - Set to copy
      */
     public TypedDiscreteSet(DiscreteSetI<E> set) {
-        this.elements = new LinkedList<>(set.getElements());
+        this.elements = new HashSet<>(set.getElements());
     }
 
     /**
@@ -49,9 +53,7 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
      */
     @Override
     public boolean add(E element) {
-        if (contains(element)) {
-            return false;
-        }
+        if (contains(element)) return false;
         return this.elements.add(element);
     }
 
@@ -121,7 +123,7 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public List<E> getElements() {
+    public Set<E> getElements() {
         return this.elements;
     }
 
@@ -158,9 +160,7 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
         for (E element : this.elements) {
             // If an element in this set is not in the superset,
             // then this is not a subset.
-            if (!other.contains(element)) {
-                return false;
-            }
+            if (!other.contains(element)) return false;
         }
         return true;
     }
@@ -194,9 +194,8 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
      */
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof DiscreteSetI)) {
-            return false;
-        }
+        if (this == other) return true;
+        if (!(other instanceof DiscreteSetI)) return false;
 
         TypedDiscreteSet<?> otherSet = (TypedDiscreteSet<?>) other;
         return this.elements.equals(otherSet.elements);
@@ -429,12 +428,15 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
         List<DiscreteSetI<E>> splitSets = new ArrayList<>();
         int segmentSize = Math.floorDiv(this.elements.size(), segments);
 
+        Iterator<E> iterator = iterator();
+        iterator.next(); // Place pointer at first item
+
         int i = 0;
         while (i < this.elements.size()) {
             TypedDiscreteSet<E> currentSegment = new TypedDiscreteSet<>();
 
-            for (int j = 0; j < segmentSize; j++) {
-                currentSegment.add(this.elements.get(i));
+            for (int j = 0; j < segmentSize && iterator.hasNext(); j++) {
+                currentSegment.add(iterator.next());
                 i++;
             }
 
@@ -531,20 +533,6 @@ public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
      */
     @Override
     public Iterator<E> iterator() {
-        return new SetIterator();
-    }
-
-    private class SetIterator implements Iterator<E> {
-        private int index = 0;
-
-        @Override
-        public boolean hasNext() {
-            return index < elements.size();
-        }
-
-        @Override
-        public E next() {
-            return elements.get(index++);
-        }
+        return this.elements.iterator();
     }
 }

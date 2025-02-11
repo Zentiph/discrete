@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base for all set implementations.
@@ -13,7 +14,9 @@ import java.util.List;
  *
  * @author Gavin Borne
  */
-public interface DiscreteSetI<E> extends Collection<E> {
+public interface DiscreteSetI<E>
+    extends Collection<E>
+{
     /**
      * Add an element to this set.
      * Sets cannot contain duplicate items.
@@ -85,7 +88,7 @@ public interface DiscreteSetI<E> extends Collection<E> {
      *
      * @return The elements in this set
      */
-    List<E> getElements();
+    Set<E> getElements();
 
     /**
      * Calculate the cardinality of this set.

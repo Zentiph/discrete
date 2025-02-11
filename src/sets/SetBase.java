@@ -1,6 +1,8 @@
 package sets;
 
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -11,7 +13,7 @@ import java.util.List;
  *
  * @author Gavin Borne
  */
-public interface SetBase<E> extends Iterable<E> {
+public interface SetBase<E> extends Collection<E> {
     /**
      * Add an element to this set.
      * Sets cannot contain duplicate items.
@@ -28,15 +30,33 @@ public interface SetBase<E> extends Iterable<E> {
      * @param elements - Elements to add
      * @return Whether this operation changed the items inside the set
      */
-    boolean addAll(List<E> elements);
+    boolean addAll(Collection<? extends E> elements);
 
     /**
      * Remove an element from this set.
      *
-     * @param element - Element to remove
+     * @param o - Element to remove
      * @return Whether this operation changed the items inside the set
      */
-    boolean remove(E element);
+    boolean remove(Object o);
+
+    /**
+     * Remove all the elements in a given collection from this set.
+     *
+     * @param c - Collection of elements to remove
+     * @return Whether this operation changed the items inside the set
+     */
+    @Override
+    public boolean removeAll(Collection<?> c);
+
+    /**
+     * Retain only the elements in this set that are in a given collection.
+     *
+     * @param c - Collection of elements to retain
+     * @return Whether this operation changed the items inside the set
+     */
+    @Override
+    public boolean retainAll(Collection<?> c);
 
     /**
      * Remove all the elements from this set.
@@ -46,10 +66,19 @@ public interface SetBase<E> extends Iterable<E> {
     /**
      * Check whether this set contains an element.
      *
-     * @param element - Element to check
+     * @param o - Element to check
      * @return Whether this set contains the given element
      */
-    boolean contains(E element);
+    boolean contains(Object o);
+
+    /**
+     * Check whether this set contains all the elements in a collection.
+     *
+     * @param c - Collection to check
+     * @return Whether this set contains all the elements in the given collection
+     */
+    @Override
+    public boolean containsAll(Collection<?> c);
 
     /**
      * Get the elements in this set.
@@ -65,6 +94,16 @@ public interface SetBase<E> extends Iterable<E> {
      * @return The cardinality of this set
      */
     int cardinality();
+
+    /**
+     * Calculate the cardinality of this set.
+     * The cardinality of a set is defined as the number of elements within the set.
+     * This method is identical to {@link #cardinality()}.
+     *
+     * @return The cardinality of this set
+     */
+    @Override
+    int size();
 
     /**
      * Determine whether this set is finite (has a finite number of elements).
@@ -277,6 +316,40 @@ public interface SetBase<E> extends Iterable<E> {
      * @return This set's Bell number
      */
     BigInteger bellNumber();
+
+    /**
+     * Generate a String representation of this set.
+     *
+     * @return String representation
+     */
+    @Override
+    public String toString();
+
+    /**
+     * Convert this set's elements into an array.
+     *
+     * @return Array of elements in this set
+     */
+    @Override
+    public Object[] toArray();
+
+    /**
+     * Convert this set's elements into a typed array.
+     *
+     * @param <T> Type of the array
+     * @param a - Initial typed array
+     * @return Typed array of elements in this set
+     */
+    @Override
+    public <T> T[] toArray(T[] a);
+
+    /**
+     * Generate an iterator over the elements in this set.
+     *
+     * @return Iterator over this set's elements
+     */
+    @Override
+    public Iterator<E> iterator();
 }
 // TODO: add set addition and subtraction to TypedSets (type safety)
 // TODO: add Set class, TypedSet class, and IntervalSet class ({x | x > 0})

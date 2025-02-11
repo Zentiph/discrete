@@ -2,26 +2,28 @@ package sets;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-
-// TODO turn all for element : set.getElements() into for element : set
-// by making iterator thing necessary for all sets
 
 /**
  * A set that can be typed so that it only contains a specific type.
  * For a general set (e.g. {@code TypedSet<Object>}), use {@link Set}.
  *
+ * This class uses LinkedLists under the hood to store items since
+ * object retrieval is not supported.
+ *
  * @author Gavin Borne
  */
-public class TypedSet<E> implements SetBase<E> {
-    private ArrayList<E> elements;
+public class TypedSet<E> implements SetBase<E>, Cloneable {
+    private List<E> elements;
 
     /**
      * Create a typed set starting with no elements.
      */
     public TypedSet() {
-        this.elements = new ArrayList<>();
+        this.elements = new LinkedList<>();
     }
 
     /**
@@ -30,7 +32,7 @@ public class TypedSet<E> implements SetBase<E> {
      * @param elements - Elements to initialize the set with
      */
     public TypedSet(List<E> elements) {
-        this.elements = (ArrayList<E>) elements;
+        this.elements = new LinkedList<>(elements);
     }
 
     /**
@@ -39,7 +41,7 @@ public class TypedSet<E> implements SetBase<E> {
      * @param set - Set to copy
      */
     public TypedSet(SetBase<E> set) {
-        this.elements = (ArrayList<E>) set.getElements();
+        this.elements = new LinkedList<>(set.getElements());
     }
 
     /**
@@ -57,7 +59,7 @@ public class TypedSet<E> implements SetBase<E> {
      * {@inheritDoc}
      */
     @Override
-    public boolean addAll(List<E> elements) {
+    public boolean addAll(Collection<? extends E> elements) {
         boolean anyAdded = false;
         for (E element : elements) {
             if (this.elements.add(element)) {
@@ -71,8 +73,24 @@ public class TypedSet<E> implements SetBase<E> {
      * {@inheritDoc}
      */
     @Override
-    public boolean remove(E element) {
-        return this.elements.remove(element);
+    public boolean remove(Object o) {
+        return this.elements.remove(o);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return this.elements.removeAll(c);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return this.elements.retainAll(c);
     }
 
     /**
@@ -87,8 +105,16 @@ public class TypedSet<E> implements SetBase<E> {
      * {@inheritDoc}
      */
     @Override
-    public boolean contains(E element) {
-        return this.elements.contains(element);
+    public boolean contains(Object o) {
+        return this.elements.contains(o);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return this.elements.containsAll(c);
     }
 
     /**
@@ -104,6 +130,14 @@ public class TypedSet<E> implements SetBase<E> {
      */
     @Override
     public int cardinality() {
+        return this.elements.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int size() {
         return this.elements.size();
     }
 
@@ -208,7 +242,7 @@ public class TypedSet<E> implements SetBase<E> {
         for (E element : this.elements) {
             newSet.add(element);
         }
-        for (E element : other.getElements()) {
+        for (E element : other) {
             newSet.add(element);
         }
 
@@ -226,7 +260,7 @@ public class TypedSet<E> implements SetBase<E> {
             newSet.add(element);
         }
         for (SetBase<E> set : others) {
-            for (E element : set.getElements()) {
+            for (E element : set) {
                 newSet.add(element);
             }
         }
@@ -254,7 +288,7 @@ public class TypedSet<E> implements SetBase<E> {
             biggerSet = this;
         }
 
-        for (E element : smallerSet.getElements()) {
+        for (E element : smallerSet) {
             if (biggerSet.contains(element)) {
                 newSet.add(element);
             }
@@ -325,7 +359,7 @@ public class TypedSet<E> implements SetBase<E> {
         SetBase<OrderedGroup> newSet = new TypedSet<>();
 
         for (E element : this.elements) {
-            for (E otherElement : other.getElements()) {
+            for (E otherElement : other) {
                 newSet.add(new OrderedGroup(element, otherElement));
             }
         }
@@ -348,7 +382,7 @@ public class TypedSet<E> implements SetBase<E> {
         for (int i = 0; i < others.size(); i++) {
             TypedSet<OrderedGroup> result = new TypedSet<>();
 
-            for (OrderedGroup group : newSet.getElements()) {
+            for (OrderedGroup group : newSet) {
                 for (Object element : group.getAll()) {
                     group.add(element);
                     result.add(group);
@@ -374,7 +408,7 @@ public class TypedSet<E> implements SetBase<E> {
         for (E element : this.elements) {
             List<SetBase<E>> subsets = new ArrayList<>();
 
-            for (SetBase<E> set : newSet.getElements()) {
+            for (SetBase<E> set : newSet) {
                 SetBase<E> newSubset = new TypedSet<>(set);
                 newSubset.add(element);
 
@@ -417,7 +451,7 @@ public class TypedSet<E> implements SetBase<E> {
     public boolean isPartition(List<SetBase<E>> partition) {
         // Check if any set in the partition contains the empty set
         for (SetBase<E> set : partition) {
-            for (E element : set.getElements()) {
+            for (E element : set) {
                 if (element instanceof SetBase && ((SetBase<?>)element).cardinality() == 0) {
                     return false;
                 }
@@ -456,6 +490,9 @@ public class TypedSet<E> implements SetBase<E> {
         return BellNumbers.bellNumberRecursive(size);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         String out = "{";
@@ -474,9 +511,23 @@ public class TypedSet<E> implements SetBase<E> {
     }
 
     /**
-     * Generate an iterator over the elements in this set.
-     *
-     * @return Iterator over this set's elements
+     * {@inheritDoc}
+     */
+    @Override
+    public Object[] toArray() {
+        return this.elements.toArray();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T[] toArray(T[] a) {
+        return this.elements.toArray(a);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public Iterator<E> iterator() {

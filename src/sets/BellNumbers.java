@@ -10,8 +10,6 @@ import java.util.Map;
  * @author Gavin Borne
  */
 public class BellNumbers {
-    private static final Map<Integer, BigInteger> memo = new HashMap<>();
-
     /**
      * Calculate the nth Bell number.
      * This function is faster and works better for moderate
@@ -49,6 +47,10 @@ public class BellNumbers {
      * @return nth Bell number
      */
     public static BigInteger bellNumberRecursive(int n) {
+        return bellNumberRecursive(n, new HashMap<>());
+    }
+
+    private static BigInteger bellNumberRecursive(int n, Map<Integer, BigInteger> memo) {
         if (n == 0) {
             return BigInteger.ONE;
         }
@@ -58,7 +60,7 @@ public class BellNumbers {
 
         BigInteger sum = BigInteger.ZERO;
         for (int k = 0; k < n; k++) {
-            sum = sum.add(binomial(n - 1, k).multiply(bellNumber(k)));
+            sum = sum.add(binomial(n - 1, k).multiply(bellNumberRecursive(k, memo)));
         }
 
         memo.put(n, sum);
@@ -76,8 +78,8 @@ public class BellNumbers {
     private static BigInteger binomial(int n, int k) {
         BigInteger result = BigInteger.ONE;
         for (int i = 0; i < k; i++) {
-            result = result.multiply(BigInteger.valueOf(n - i)
-                .divide(BigInteger.valueOf(i + 1)));
+            result = result.multiply(BigInteger.valueOf(n - i))
+                .divide(BigInteger.valueOf(i + 1));
         }
         return result;
     }

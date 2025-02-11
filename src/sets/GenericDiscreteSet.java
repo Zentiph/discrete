@@ -10,15 +10,15 @@ import java.util.Set;
 
 /**
  * A set that can be typed so that it only contains a specific type.
- * For a general set (e.g. {@code TypedSet<Object>}), use {@link DiscreteSet}.
+ * For a general set (e.g. {@code TypedSet<Object>}), use {@link RawDiscreteSet}.
  *
  * This class uses LinkedLists under the hood to store items since
  * object retrieval is not supported.
  *
  * @author Gavin Borne
  */
-public class TypedDiscreteSet<E>
-    implements DiscreteSetI<E>, Cloneable
+public class GenericDiscreteSet<E>
+    implements DiscreteSet<E>, Cloneable
 {
     private Set<E> elements;
     // private List<E> elements;
@@ -26,7 +26,7 @@ public class TypedDiscreteSet<E>
     /**
      * Create a typed set starting with no elements.
      */
-    public TypedDiscreteSet() {
+    public GenericDiscreteSet() {
         this.elements = new HashSet<>();
     }
 
@@ -35,7 +35,7 @@ public class TypedDiscreteSet<E>
      *
      * @param elements - Elements to initialize the set with
      */
-    public TypedDiscreteSet(Collection<E> elements) {
+    public GenericDiscreteSet(Collection<E> elements) {
         this.elements = new HashSet<>(elements);
     }
 
@@ -44,7 +44,7 @@ public class TypedDiscreteSet<E>
      *
      * @param set - Set to copy
      */
-    public TypedDiscreteSet(DiscreteSetI<E> set) {
+    public GenericDiscreteSet(DiscreteSet<E> set) {
         this.elements = new HashSet<>(set.getElements());
     }
 
@@ -156,7 +156,7 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public boolean isSubsetOf(DiscreteSetI<E> other) {
+    public boolean isSubsetOf(DiscreteSet<E> other) {
         for (E element : this.elements) {
             // If an element in this set is not in the superset,
             // then this is not a subset.
@@ -169,7 +169,7 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public boolean isProperSubsetOf(DiscreteSetI<E> other) {
+    public boolean isProperSubsetOf(DiscreteSet<E> other) {
         return isSubsetOf(other) && !equals(other);
     }
 
@@ -195,9 +195,9 @@ public class TypedDiscreteSet<E>
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof DiscreteSetI)) return false;
+        if (!(other instanceof DiscreteSet)) return false;
 
-        TypedDiscreteSet<?> otherSet = (TypedDiscreteSet<?>) other;
+        GenericDiscreteSet<?> otherSet = (GenericDiscreteSet<?>) other;
         return this.elements.equals(otherSet.elements);
     }
 
@@ -205,7 +205,7 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public boolean isEquivalentTo(DiscreteSetI<E> other) {
+    public boolean isEquivalentTo(DiscreteSet<E> other) {
         return elements.size() == other.cardinality();
     }
 
@@ -213,7 +213,7 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public boolean isOverlappingWith(DiscreteSetI<E> other) {
+    public boolean isOverlappingWith(DiscreteSet<E> other) {
         for (E element : this.elements) {
             if (other.contains(element)) {
                 return true;
@@ -227,7 +227,7 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public boolean isDisjointWith(DiscreteSetI<E> other) {
+    public boolean isDisjointWith(DiscreteSet<E> other) {
         return !isOverlappingWith(other);
     }
 
@@ -235,8 +235,8 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<E> union(DiscreteSetI<E> other) {
-        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
+    public DiscreteSet<E> union(DiscreteSet<E> other) {
+        DiscreteSet<E> newSet = new GenericDiscreteSet<>();
 
         for (E element : this.elements) {
             newSet.add(element);
@@ -252,13 +252,13 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<E> union(List<DiscreteSetI<E>> others) throws IllegalArgumentException {
-        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
+    public DiscreteSet<E> union(List<DiscreteSet<E>> others) throws IllegalArgumentException {
+        DiscreteSet<E> newSet = new GenericDiscreteSet<>();
 
         for (E element : this.elements) {
             newSet.add(element);
         }
-        for (DiscreteSetI<E> set : others) {
+        for (DiscreteSet<E> set : others) {
             for (E element : set) {
                 newSet.add(element);
             }
@@ -271,14 +271,14 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<E> intersection(DiscreteSetI<E> other) {
-        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
+    public DiscreteSet<E> intersection(DiscreteSet<E> other) {
+        DiscreteSet<E> newSet = new GenericDiscreteSet<>();
 
         // Prevent wasted time looping over bigger set
         // when intersection can be at most as big as the
         // smaller set
-        DiscreteSetI<E> smallerSet;
-        DiscreteSetI<E> biggerSet;
+        DiscreteSet<E> smallerSet;
+        DiscreteSet<E> biggerSet;
         if (cardinality() <= other.cardinality()) {
             smallerSet = this;
             biggerSet = other;
@@ -301,10 +301,10 @@ public class TypedDiscreteSet<E>
      */
 
     @Override
-    public DiscreteSetI<E> intersection(List<DiscreteSetI<E>> others) {
-        DiscreteSetI<E> newSet = new TypedDiscreteSet<>(this.elements);
+    public DiscreteSet<E> intersection(List<DiscreteSet<E>> others) {
+        DiscreteSet<E> newSet = new GenericDiscreteSet<>(this.elements);
 
-        for (DiscreteSetI<E> set : others) {
+        for (DiscreteSet<E> set : others) {
             newSet = newSet.intersection(set);
             // If the set is empty, its intersection will always be the empty set.
             if (newSet.cardinality() == 0) {
@@ -320,8 +320,8 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<E> difference(DiscreteSetI<E> other) {
-        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
+    public DiscreteSet<E> difference(DiscreteSet<E> other) {
+        DiscreteSet<E> newSet = new GenericDiscreteSet<>();
 
         for (E element : this.elements) {
             if (!other.contains(element)) {
@@ -336,9 +336,9 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<E> symmetricDifference(DiscreteSetI<E> other) {
-        DiscreteSetI<E> firstDifference = difference(other);
-        DiscreteSetI<E> secondDifference = other.difference(this);
+    public DiscreteSet<E> symmetricDifference(DiscreteSet<E> other) {
+        DiscreteSet<E> firstDifference = difference(other);
+        DiscreteSet<E> secondDifference = other.difference(this);
         return firstDifference.union(secondDifference);
     }
 
@@ -346,7 +346,7 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<E> complement(DiscreteSetI<E> universe) {
+    public DiscreteSet<E> complement(DiscreteSet<E> universe) {
         return universe.difference(this);
     }
 
@@ -354,8 +354,8 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<OrderedGroup> cartesianProduct(DiscreteSetI<E> other) {
-        DiscreteSetI<OrderedGroup> newSet = new TypedDiscreteSet<>();
+    public DiscreteSet<OrderedGroup> cartesianProduct(DiscreteSet<E> other) {
+        DiscreteSet<OrderedGroup> newSet = new GenericDiscreteSet<>();
 
         for (E element : this.elements) {
             for (E otherElement : other) {
@@ -370,16 +370,16 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<OrderedGroup> cartesianProduct(List<DiscreteSetI<E>> others) throws IllegalArgumentException {
+    public DiscreteSet<OrderedGroup> cartesianProduct(List<DiscreteSet<E>> others) throws IllegalArgumentException {
         if (others.size() == 0) {
             throw new IllegalArgumentException("cartesianProduct arg 'others' cannot be an empty list");
         }
 
-        TypedDiscreteSet<OrderedGroup> newSet = new TypedDiscreteSet<>();
+        GenericDiscreteSet<OrderedGroup> newSet = new GenericDiscreteSet<>();
         newSet.add(new OrderedGroup());
 
         for (int i = 0; i < others.size(); i++) {
-            TypedDiscreteSet<OrderedGroup> result = new TypedDiscreteSet<>();
+            GenericDiscreteSet<OrderedGroup> result = new GenericDiscreteSet<>();
 
             for (OrderedGroup group : newSet) {
                 for (Object element : group.getAll()) {
@@ -398,17 +398,17 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public DiscreteSetI<DiscreteSetI<E>> powerSet() {
-        DiscreteSetI<DiscreteSetI<E>> newSet = new TypedDiscreteSet<>();
+    public DiscreteSet<DiscreteSet<E>> powerSet() {
+        DiscreteSet<DiscreteSet<E>> newSet = new GenericDiscreteSet<>();
 
         // Add empty set
-        newSet.add(new TypedDiscreteSet<>());
+        newSet.add(new GenericDiscreteSet<>());
 
         for (E element : this.elements) {
-            List<DiscreteSetI<E>> subsets = new ArrayList<>();
+            List<DiscreteSet<E>> subsets = new ArrayList<>();
 
-            for (DiscreteSetI<E> set : newSet) {
-                DiscreteSetI<E> newSubset = new TypedDiscreteSet<>(set);
+            for (DiscreteSet<E> set : newSet) {
+                DiscreteSet<E> newSubset = new GenericDiscreteSet<>(set);
                 newSubset.add(element);
 
                 subsets.add(newSubset);
@@ -424,8 +424,8 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public List<DiscreteSetI<E>> partition(int segments) {
-        List<DiscreteSetI<E>> splitSets = new ArrayList<>();
+    public List<DiscreteSet<E>> partition(int segments) {
+        List<DiscreteSet<E>> splitSets = new ArrayList<>();
         int segmentSize = Math.floorDiv(this.elements.size(), segments);
 
         Iterator<E> iterator = iterator();
@@ -433,7 +433,7 @@ public class TypedDiscreteSet<E>
 
         int i = 0;
         while (i < this.elements.size()) {
-            TypedDiscreteSet<E> currentSegment = new TypedDiscreteSet<>();
+            GenericDiscreteSet<E> currentSegment = new GenericDiscreteSet<>();
 
             for (int j = 0; j < segmentSize && iterator.hasNext(); j++) {
                 currentSegment.add(iterator.next());
@@ -450,11 +450,11 @@ public class TypedDiscreteSet<E>
      * {@inheritDoc}
      */
     @Override
-    public boolean isPartition(List<DiscreteSetI<E>> partition) {
+    public boolean isPartition(List<DiscreteSet<E>> partition) {
         // Check if any set in the partition contains the empty set
-        for (DiscreteSetI<E> set : partition) {
+        for (DiscreteSet<E> set : partition) {
             for (E element : set) {
-                if (element instanceof DiscreteSetI && ((DiscreteSetI<?>)element).cardinality() == 0) {
+                if (element instanceof DiscreteSet && ((DiscreteSet<?>)element).cardinality() == 0) {
                     return false;
                 }
             }

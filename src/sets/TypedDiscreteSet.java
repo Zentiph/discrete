@@ -9,20 +9,20 @@ import java.util.List;
 
 /**
  * A set that can be typed so that it only contains a specific type.
- * For a general set (e.g. {@code TypedSet<Object>}), use {@link Set}.
+ * For a general set (e.g. {@code TypedSet<Object>}), use {@link DiscreteSet}.
  *
  * This class uses LinkedLists under the hood to store items since
  * object retrieval is not supported.
  *
  * @author Gavin Borne
  */
-public class TypedSet<E> implements SetBase<E>, Cloneable {
+public class TypedDiscreteSet<E> implements DiscreteSetI<E>, Cloneable {
     private List<E> elements;
 
     /**
      * Create a typed set starting with no elements.
      */
-    public TypedSet() {
+    public TypedDiscreteSet() {
         this.elements = new LinkedList<>();
     }
 
@@ -31,7 +31,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      *
      * @param elements - Elements to initialize the set with
      */
-    public TypedSet(List<E> elements) {
+    public TypedDiscreteSet(List<E> elements) {
         this.elements = new LinkedList<>(elements);
     }
 
@@ -40,7 +40,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      *
      * @param set - Set to copy
      */
-    public TypedSet(SetBase<E> set) {
+    public TypedDiscreteSet(DiscreteSetI<E> set) {
         this.elements = new LinkedList<>(set.getElements());
     }
 
@@ -154,7 +154,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public boolean isSubsetOf(SetBase<E> other) {
+    public boolean isSubsetOf(DiscreteSetI<E> other) {
         for (E element : this.elements) {
             // If an element in this set is not in the superset,
             // then this is not a subset.
@@ -169,7 +169,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public boolean isProperSubsetOf(SetBase<E> other) {
+    public boolean isProperSubsetOf(DiscreteSetI<E> other) {
         return isSubsetOf(other) && !equals(other);
     }
 
@@ -194,11 +194,11 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      */
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof SetBase)) {
+        if (!(other instanceof DiscreteSetI)) {
             return false;
         }
 
-        TypedSet<?> otherSet = (TypedSet<?>) other;
+        TypedDiscreteSet<?> otherSet = (TypedDiscreteSet<?>) other;
         return this.elements.equals(otherSet.elements);
     }
 
@@ -206,7 +206,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public boolean isEquivalentTo(SetBase<E> other) {
+    public boolean isEquivalentTo(DiscreteSetI<E> other) {
         return elements.size() == other.cardinality();
     }
 
@@ -214,7 +214,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public boolean isOverlappingWith(SetBase<E> other) {
+    public boolean isOverlappingWith(DiscreteSetI<E> other) {
         for (E element : this.elements) {
             if (other.contains(element)) {
                 return true;
@@ -228,7 +228,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public boolean isDisjointWith(SetBase<E> other) {
+    public boolean isDisjointWith(DiscreteSetI<E> other) {
         return !isOverlappingWith(other);
     }
 
@@ -236,8 +236,8 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<E> union(SetBase<E> other) {
-        SetBase<E> newSet = new TypedSet<>();
+    public DiscreteSetI<E> union(DiscreteSetI<E> other) {
+        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
 
         for (E element : this.elements) {
             newSet.add(element);
@@ -253,13 +253,13 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<E> union(List<SetBase<E>> others) throws IllegalArgumentException {
-        SetBase<E> newSet = new TypedSet<>();
+    public DiscreteSetI<E> union(List<DiscreteSetI<E>> others) throws IllegalArgumentException {
+        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
 
         for (E element : this.elements) {
             newSet.add(element);
         }
-        for (SetBase<E> set : others) {
+        for (DiscreteSetI<E> set : others) {
             for (E element : set) {
                 newSet.add(element);
             }
@@ -272,14 +272,14 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<E> intersection(SetBase<E> other) {
-        SetBase<E> newSet = new TypedSet<>();
+    public DiscreteSetI<E> intersection(DiscreteSetI<E> other) {
+        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
 
         // Prevent wasted time looping over bigger set
         // when intersection can be at most as big as the
         // smaller set
-        SetBase<E> smallerSet;
-        SetBase<E> biggerSet;
+        DiscreteSetI<E> smallerSet;
+        DiscreteSetI<E> biggerSet;
         if (cardinality() <= other.cardinality()) {
             smallerSet = this;
             biggerSet = other;
@@ -302,10 +302,10 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      */
 
     @Override
-    public SetBase<E> intersection(List<SetBase<E>> others) {
-        SetBase<E> newSet = new TypedSet<>(this.elements);
+    public DiscreteSetI<E> intersection(List<DiscreteSetI<E>> others) {
+        DiscreteSetI<E> newSet = new TypedDiscreteSet<>(this.elements);
 
-        for (SetBase<E> set : others) {
+        for (DiscreteSetI<E> set : others) {
             newSet = newSet.intersection(set);
             // If the set is empty, its intersection will always be the empty set.
             if (newSet.cardinality() == 0) {
@@ -321,8 +321,8 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<E> difference(SetBase<E> other) {
-        SetBase<E> newSet = new TypedSet<>();
+    public DiscreteSetI<E> difference(DiscreteSetI<E> other) {
+        DiscreteSetI<E> newSet = new TypedDiscreteSet<>();
 
         for (E element : this.elements) {
             if (!other.contains(element)) {
@@ -337,9 +337,9 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<E> symmetricDifference(SetBase<E> other) {
-        SetBase<E> firstDifference = difference(other);
-        SetBase<E> secondDifference = other.difference(this);
+    public DiscreteSetI<E> symmetricDifference(DiscreteSetI<E> other) {
+        DiscreteSetI<E> firstDifference = difference(other);
+        DiscreteSetI<E> secondDifference = other.difference(this);
         return firstDifference.union(secondDifference);
     }
 
@@ -347,7 +347,7 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<E> complement(SetBase<E> universe) {
+    public DiscreteSetI<E> complement(DiscreteSetI<E> universe) {
         return universe.difference(this);
     }
 
@@ -355,8 +355,8 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<OrderedGroup> cartesianProduct(SetBase<E> other) {
-        SetBase<OrderedGroup> newSet = new TypedSet<>();
+    public DiscreteSetI<OrderedGroup> cartesianProduct(DiscreteSetI<E> other) {
+        DiscreteSetI<OrderedGroup> newSet = new TypedDiscreteSet<>();
 
         for (E element : this.elements) {
             for (E otherElement : other) {
@@ -371,16 +371,16 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<OrderedGroup> cartesianProduct(List<SetBase<E>> others) throws IllegalArgumentException {
+    public DiscreteSetI<OrderedGroup> cartesianProduct(List<DiscreteSetI<E>> others) throws IllegalArgumentException {
         if (others.size() == 0) {
             throw new IllegalArgumentException("cartesianProduct arg 'others' cannot be an empty list");
         }
 
-        TypedSet<OrderedGroup> newSet = new TypedSet<>();
+        TypedDiscreteSet<OrderedGroup> newSet = new TypedDiscreteSet<>();
         newSet.add(new OrderedGroup());
 
         for (int i = 0; i < others.size(); i++) {
-            TypedSet<OrderedGroup> result = new TypedSet<>();
+            TypedDiscreteSet<OrderedGroup> result = new TypedDiscreteSet<>();
 
             for (OrderedGroup group : newSet) {
                 for (Object element : group.getAll()) {
@@ -399,17 +399,17 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public SetBase<SetBase<E>> powerSet() {
-        SetBase<SetBase<E>> newSet = new TypedSet<>();
+    public DiscreteSetI<DiscreteSetI<E>> powerSet() {
+        DiscreteSetI<DiscreteSetI<E>> newSet = new TypedDiscreteSet<>();
 
         // Add empty set
-        newSet.add(new TypedSet<>());
+        newSet.add(new TypedDiscreteSet<>());
 
         for (E element : this.elements) {
-            List<SetBase<E>> subsets = new ArrayList<>();
+            List<DiscreteSetI<E>> subsets = new ArrayList<>();
 
-            for (SetBase<E> set : newSet) {
-                SetBase<E> newSubset = new TypedSet<>(set);
+            for (DiscreteSetI<E> set : newSet) {
+                DiscreteSetI<E> newSubset = new TypedDiscreteSet<>(set);
                 newSubset.add(element);
 
                 subsets.add(newSubset);
@@ -425,13 +425,13 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public List<SetBase<E>> partition(int segments) {
-        List<SetBase<E>> splitSets = new ArrayList<>();
+    public List<DiscreteSetI<E>> partition(int segments) {
+        List<DiscreteSetI<E>> splitSets = new ArrayList<>();
         int segmentSize = Math.floorDiv(this.elements.size(), segments);
 
         int i = 0;
         while (i < this.elements.size()) {
-            TypedSet<E> currentSegment = new TypedSet<>();
+            TypedDiscreteSet<E> currentSegment = new TypedDiscreteSet<>();
 
             for (int j = 0; j < segmentSize; j++) {
                 currentSegment.add(this.elements.get(i));
@@ -448,11 +448,11 @@ public class TypedSet<E> implements SetBase<E>, Cloneable {
      * {@inheritDoc}
      */
     @Override
-    public boolean isPartition(List<SetBase<E>> partition) {
+    public boolean isPartition(List<DiscreteSetI<E>> partition) {
         // Check if any set in the partition contains the empty set
-        for (SetBase<E> set : partition) {
+        for (DiscreteSetI<E> set : partition) {
             for (E element : set) {
-                if (element instanceof SetBase && ((SetBase<?>)element).cardinality() == 0) {
+                if (element instanceof DiscreteSetI && ((DiscreteSetI<?>)element).cardinality() == 0) {
                     return false;
                 }
             }

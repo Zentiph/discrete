@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Gavin Borne
  */
-public interface SetBase<E> extends Collection<E> {
+public interface DiscreteSetI<E> extends Collection<E> {
     /**
      * Add an element to this set.
      * Sets cannot contain duplicate items.
@@ -119,7 +119,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return Whether this set is a subset of the other set
      */
-    boolean isSubsetOf(SetBase<E> other);
+    boolean isSubsetOf(DiscreteSetI<E> other);
 
     /**
      * Check if this set is a proper subset of another set.
@@ -129,7 +129,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return Whether this set is a proper subset of the other set
      */
-    boolean isProperSubsetOf(SetBase<E> other);
+    boolean isProperSubsetOf(DiscreteSetI<E> other);
 
     /**
      * Determine whether this set is empty.
@@ -163,7 +163,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return Whether the two sets are equivalent
      */
-    boolean isEquivalentTo(SetBase<E> other);
+    boolean isEquivalentTo(DiscreteSetI<E> other);
 
     /**
      * Determine if this set and another set are overlapping.
@@ -172,7 +172,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return Whether the two sets are overlapping
      */
-    boolean isOverlappingWith(SetBase<E> other);
+    boolean isOverlappingWith(DiscreteSetI<E> other);
 
     /**
      * Determine if this set and another set are disjoint.
@@ -181,7 +181,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return Whether the two sets are disjoint
      */
-    boolean isDisjointWith(SetBase<E> other);
+    boolean isDisjointWith(DiscreteSetI<E> other);
 
     /**
      * Generate the union of this set and another set.
@@ -190,7 +190,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return The union of the two sets
      */
-    SetBase<E> union(SetBase<E> other);
+    DiscreteSetI<E> union(DiscreteSetI<E> other);
 
     /**
      * Generate the union of this set and an arbitrary number of other sets.
@@ -200,7 +200,7 @@ public interface SetBase<E> extends Collection<E> {
      * @return The union of the sets
      * @throws IllegalArgumentException If others is an empty list
      */
-    SetBase<E> union(List<SetBase<E>> others) throws IllegalArgumentException;
+    DiscreteSetI<E> union(List<DiscreteSetI<E>> others) throws IllegalArgumentException;
 
     /**
      * Generate the intersection of this set and another set.
@@ -209,7 +209,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return The intersection of the two sets
      */
-    SetBase<E> intersection(SetBase<E> other);
+    DiscreteSetI<E> intersection(DiscreteSetI<E> other);
 
     /**
      * Generate the intersection of this set and an arbitrary number of other sets.
@@ -219,7 +219,7 @@ public interface SetBase<E> extends Collection<E> {
      * @return The intersection of the sets
      * @throws IllegalArgumentException If others is an empty list
      */
-    SetBase<E> intersection(List<SetBase<E>> others) throws IllegalArgumentException;
+    DiscreteSetI<E> intersection(List<DiscreteSetI<E>> others) throws IllegalArgumentException;
 
     /**
      * Generate the difference (also known as relative complement) of this set and another set.
@@ -229,7 +229,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return The difference between this set and the other set
      */
-    SetBase<E> difference(SetBase<E> other);
+    DiscreteSetI<E> difference(DiscreteSetI<E> other);
 
     /**
      * Generate the symmetric difference of this set and another set.
@@ -239,7 +239,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return The symmetric difference between this set and the other set
      */
-    SetBase<E> symmetricDifference(SetBase<E> other);
+    DiscreteSetI<E> symmetricDifference(DiscreteSetI<E> other);
 
     /**
      * Generate the complement of this set.
@@ -252,7 +252,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param universe - The universal set such that S' = (U - S)
      * @return The compliment of this set
      */
-    SetBase<E> complement(SetBase<E> universe);
+    DiscreteSetI<E> complement(DiscreteSetI<E> universe);
 
     /**
      * Generate the cartesian product (cross product) of this set and another set.
@@ -264,7 +264,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param other - Other set
      * @return The cartesian product of this set and the other set
      */
-    SetBase<OrderedGroup> cartesianProduct(SetBase<E> other);
+    DiscreteSetI<OrderedGroup> cartesianProduct(DiscreteSetI<E> other);
 
     /**
      * Generate the cartesian product (cross product) of this set and an arbitrary number of other sets.
@@ -276,7 +276,7 @@ public interface SetBase<E> extends Collection<E> {
      * @return The cartesian product of this set and the given sets
      * @throws IllegalArgumentException If others is an empty list
      */
-    SetBase<OrderedGroup> cartesianProduct(List<SetBase<E>> others) throws IllegalArgumentException;
+    DiscreteSetI<OrderedGroup> cartesianProduct(List<DiscreteSetI<E>> others) throws IllegalArgumentException;
 
     /**
      * Generate the power set of this set.
@@ -285,7 +285,7 @@ public interface SetBase<E> extends Collection<E> {
      *
      * @return The power set of this set
      */
-    SetBase<SetBase<E>> powerSet();
+    DiscreteSetI<DiscreteSetI<E>> powerSet();
 
     /**
      * Partition this set into a number of equally sized segments.
@@ -295,7 +295,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param segments - Number of segments
      * @return Partitioned set
      */
-    List<SetBase<E>> partition(int segments);
+    List<DiscreteSetI<E>> partition(int segments);
 
     /**
      * Determine whether the given list of sets is a valid partitioning of this set.
@@ -308,7 +308,7 @@ public interface SetBase<E> extends Collection<E> {
      * @param partition
      * @return
      */
-    boolean isPartition(List<SetBase<E>> partition);
+    boolean isPartition(List<DiscreteSetI<E>> partition);
 
     /**
      * Calculate the Bell number for this set.
